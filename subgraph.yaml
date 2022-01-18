@@ -1,0 +1,35 @@
+specVersion: 0.0.1
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: NecoMarketplace
+    network: chapel
+    source:
+      address: "0x38933d3aAD46D83cC82828121d0112968790Ea07"
+      abi: NecoMarketplace
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - BuyItem
+        - ChangePrice
+        - OwnershipTransferred
+        - PublichNewItem
+        - RevertOnListItem
+      abis:
+        - name: NecoMarketplace
+          file: ./abis/NecoMarketplace.json
+      eventHandlers:
+        - event: BuyItem(indexed address,indexed address,uint256,uint256,uint256,uint256)
+          handler: handleBuyItem
+        - event: ChangePrice(indexed address,uint256,uint256,uint256,uint256)
+          handler: handleChangePrice
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: PublichNewItem(indexed address,uint256,uint256,uint256,uint256)
+          handler: handlePublichNewItem
+        - event: RevertOnListItem(indexed address,uint256,uint256)
+          handler: handleRevertOnListItem
+      file: ./src/mapping.ts
