@@ -93,6 +93,7 @@ export function handlePublishNewItem(event: PublishNewItem): void {
     marketplace.todaySoldItemAmount = 0;
     marketplace.todayPublishedItemAmount = 0;
     marketplace.todaySoldItemAmount = 0;
+    marketplace.save();
   }
 
   let userId = event.params.account.toHex()
@@ -100,6 +101,9 @@ export function handlePublishNewItem(event: PublishNewItem): void {
   if (user == null) {
     user = new User(userId);
     user.address = event.params.account;
+    user.onListItems = [];
+    user.boughtItems = [];
+    user.save();
   }
 
   let itemId = event.params.ItemId.toHex();
@@ -120,10 +124,15 @@ export function handlePublishNewItem(event: PublishNewItem): void {
     item.save();
   }
 
-  marketplace.publishedItems.push(item.id);
+  let publishedItems = marketplace.publishedItems;
+  publishedItems.push(item.id);
+  marketplace.publishedItems = publishedItems;
+  marketplace.totalPublishedItemAmount += 1;
   marketplace.save();
 
-  user.onListItems.push(item.id);
+  let onListItems = user.onListItems;
+  onListItems.push(item.id);
+  user.onListItems = onListItems;
   user.save()
 }
 

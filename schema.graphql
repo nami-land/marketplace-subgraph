@@ -2,7 +2,7 @@ type Item @entity {
   id: ID!
   itemId: BigInt!
   seller: User!
-  buyer: User!
+  buyer: User
   nftId: BigInt!
   nftUri: String!
   amount: BigInt!
@@ -11,6 +11,7 @@ type Item @entity {
   isSoldOut: Boolean!
   isOnList: Boolean!
   fee: BigInt!
+  marketplace: Marketplace!
 }
 
 type Marketplace @entity {
