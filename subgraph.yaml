@@ -6,7 +6,7 @@ dataSources:
     name: NecoMarketplace
     network: chapel
     source:
-      address: "0x81EF92B7214945203bA69eE3219E34369fc2C642"
+      address: "0xa6Aa80264E121cf070fA3bb0c5c3c8aCF3b5d6ec"
       abi: NecoMarketplace
       startBlock: 15961680
     mapping:
@@ -22,6 +22,8 @@ dataSources:
       abis:
         - name: NecoMarketplace
           file: ./abis/NecoMarketplace.json
+        - name: NecoNFT
+          file: ./abis/NecoNFT.json
       eventHandlers:
         - event: BuyItem(indexed address,indexed address,uint256,uint256,uint256,uint256)
           handler: handleBuyItem

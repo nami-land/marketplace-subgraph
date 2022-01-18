@@ -1,6 +1,31 @@
-type ExampleEntity @entity {
+type Item @entity {
   id: ID!
-  count: BigInt!
-  buyer: Bytes! # address
-  seller: Bytes! # address
+  itemId: BigInt!
+  seller: User!
+  buyer: User!
+  nftId: BigInt!
+  nftUri: String!
+  amount: BigInt!
+  price: BigInt!
+  onListTime: BigInt!
+  isSoldOut: Boolean!
+  isOnList: Boolean!
+  fee: BigInt!
+}
+
+type Marketplace @entity {
+  id: ID!
+  publishedItems: [Item!]!
+  soldItems: [Item!]!
+  totalPublishedItemAmount: Int!
+  totalSoldItemAmount: Int!
+  todayPublishedItemAmount: Int!
+  todaySoldItemAmount: Int!
+}
+
+type User @entity {
+  id: ID!
+  address: Bytes!
+  onListItems: [Item!]!
+  boughtItems: [Item!]!
 }
