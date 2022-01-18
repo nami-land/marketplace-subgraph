@@ -4,7 +4,7 @@ import {
   BuyItem,
   ChangePrice,
   OwnershipTransferred,
-  PublichNewItem,
+  PublishNewItem,
   RevertOnListItem
 } from "../generated/NecoMarketplace/NecoMarketplace"
 import { ExampleEntity } from "../generated/schema"
@@ -72,6 +72,6 @@ export function handleChangePrice(event: ChangePrice): void {}
 
 export function handleOwnershipTransferred(event: OwnershipTransferred): void {}
 
-export function handlePublichNewItem(event: PublichNewItem): void {}
+export function handlePublishNewItem(event: PublishNewItem): void {}
 
 export function handleRevertOnListItem(event: RevertOnListItem): void {}
