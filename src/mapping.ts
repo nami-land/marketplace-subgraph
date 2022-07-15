@@ -17,88 +17,87 @@ let ZERO_ADDRESS = Address.fromString("0x000000000000000000000000000000000000000
 let BIGINT_ZERO = BigInt.fromI32(0)
 
 export function handleBuyItem(event: BuyItem): void {
-  // Entities can be loaded from the store using a string ID; this ID
-  // needs to be unique across all entities of the same type
-  // let entity = ExampleEntity.load(event.transaction.from.toHex())
+  let itemId = event.params.ItemId.toHex();
+  let item = Item.load(itemId);
 
-  // Entities only exist after they have been saved to the store;
-  // `null` checks allow to create entities on demand
-  // if (!entity) {
-  //   entity = new ExampleEntity(event.transaction.from.toHex())
+  // update item's properties.
+  if (item !== null) {
+    item.isOnList = false;
+    item.buyer = event.params.buyer.toHex();
+    item.isSoldOut = true;
+    item.soldTime = event.block.timestamp;
+    item.fee = event.params.fee;
+    item.save();
+  }
 
-  //   // Entity fields can be set using simple assignments
-  //   entity.count = BigInt.fromI32(0)
-  // }
+  // update marketplace's data
+  let marketAddress = event.address;
+  let marketplaceId = marketAddress.toHex();
+  let marketplace = Marketplace.load(marketplaceId);
+  if (marketplace !== null) {
+    // change sold items array
+    let soldItems: string[] = marketplace.soldItems;
+    soldItems.push(itemId);
+    marketplace.soldItems = soldItems;
 
-  // BigInt and BigDecimal math are supported
-  // entity.count = entity.count + BigInt.fromI32(1)
+    // change onList items
+    let onListItems = marketplace.onListItems;
+    let index = onListItems.indexOf(itemId);
+    let newOnListItems = onListItems.splice(index, 1);
+    marketplace.onListItems = newOnListItems;
+    marketplace.save();
+  }
 
-  // Entity fields can be set based on event parameters
-  // entity.buyer = event.params.buyer
-  // entity.seller = event.params.seller
+  // update seller's data
+  let sellerId = event.params.seller.toHex();
+  let seller = User.load(sellerId);
+  if (seller !== null) {
+    // change onList items
+    let onListItems = seller.onListItems;
+    let index = onListItems.indexOf(itemId);
+    let newOnListItems = onListItems.splice(index, 1);
+    seller.onListItems = newOnListItems;
+  }
 
-  // Entities can be written to the store with `.save()`
-  // entity.save()
-
-  // Note: If a handler doesn't require existing field values, it is faster
-  // _not_ to load the entity from the store. Instead, create it fresh with
-  // `new Entity(...)`, set the fields that should be updated and save the
-  // entity back to the store. Fields that were not set or unset remain
-  // unchanged, allowing for partial updates to be applied.
-
-  // It is also possible to access smart contracts from mappings. For
-  // example, the contract that has emitted the event can be connected to
-  // with:
-  //
-  // let contract = Contract.bind(event.address)
-  //
-  // The following functions can then be called on this contract to access
-  // state variables and other data:
-  //
-  // - contract.onERC1155BatchReceived(...)
-  // - contract.onERC1155Received(...)
-  // - contract.devAddress(...)
-  // - contract.fee(...)
-  // - contract.getBoughtId(...)
-  // - contract.getBoughtIdAmountOfUser(...)
-  // - contract.getItem(...)
-  // - contract.getItemTotalAmount(...)
-  // - contract.getPublishId(...)
-  // - contract.getPublishIdAmountOfUser(...)
-  // - contract.getSoldId(...)
-  // - contract.getSoldIdAmountOfUser(...)
-  // - contract.idToItem(...)
-  // - contract.locked(...)
-  // - contract.necoNFT(...)
-  // - contract.nfishToken(...)
-  // - contract.owner(...)
-  // - contract.supportsInterface(...)
+  // update buyer's data
+  let buyerId = event.params.buyer.toHex();
+  let buyer = User.load(buyerId);
+  if (buyer === null) {
+    buyer = new User(buyerId);
+    buyer.address = event.params.buyer;
+    buyer.onListItems = [];
+    buyer.boughtItems = [];
+    buyer.save();
+  }
+  buyer.boughtItems.push(itemId);
+  buyer.save();
 }
 
 export function handleChangePrice(event: ChangePrice): void {}
-
-export function handleOwnershipTransferred(event: OwnershipTransferred): void {}
 
 export function handlePublishNewItem(event: PublishNewItem): void {
   let marketAddress = event.address;
   let marketplaceId = marketAddress.toHex();
   let marketplace = Marketplace.load(marketplaceId);
+
+  //  get market place smart contract
   let marketplaceContract = NecoMarketplace.bind(marketAddress);
-  let nftContract = NecoNFT.bind(marketplaceContract.necoNFT())
-  if (marketplace == null) {
+
+  // get nft smart contract
+  let nftContract = NecoNFT.bind(marketplaceContract.necoNFT());
+
+  if (marketplace === null) {
     marketplace = new Marketplace(marketplaceId);
     marketplace.publishedItems = [];
     marketplace.soldItems = [];
-    marketplace.todayPublishedItemAmount = 0;
-    marketplace.todaySoldItemAmount = 0;
-    marketplace.todayPublishedItemAmount = 0;
-    marketplace.todaySoldItemAmount = 0;
+    marketplace.onListItems = [];
     marketplace.save();
   }
 
+  // create a new user
   let userId = event.params.account.toHex()
   let user = User.load(userId);
-  if (user == null) {
+  if (user === null) {
     user = new User(userId);
     user.address = event.params.account;
     user.onListItems = [];
@@ -106,9 +105,10 @@ export function handlePublishNewItem(event: PublishNewItem): void {
     user.save();
   }
 
+  // create a new item
   let itemId = event.params.ItemId.toHex();
   let item = Item.load(itemId);
-  if (item == null) {
+  if (item === null) {
     item = new Item(itemId);
     item.itemId = event.params.ItemId;
     item.seller = user.id;
@@ -119,6 +119,7 @@ export function handlePublishNewItem(event: PublishNewItem): void {
     item.price = event.params.price;
     item.onListTime = event.block.timestamp;
     item.isSoldOut = false;
+    item.soldTime = event.block.timestamp;
     item.isOnList = true;
     item.fee = BIGINT_ZERO;
     item.save();
@@ -127,7 +128,6 @@ export function handlePublishNewItem(event: PublishNewItem): void {
   let publishedItems = marketplace.publishedItems;
   publishedItems.push(item.id);
   marketplace.publishedItems = publishedItems;
-  marketplace.totalPublishedItemAmount += 1;
   marketplace.save();
 
   let onListItems = user.onListItems;
@@ -136,4 +136,35 @@ export function handlePublishNewItem(event: PublishNewItem): void {
   user.save()
 }
 
-export function handleRevertOnListItem(event: RevertOnListItem): void {}
+export function handleRevertOnListItem(event: RevertOnListItem): void {
+  let itemId = event.params.ItemId.toHex();
+  let item = Item.load(itemId);
+  if (item !== null) {
+    item.isOnList = false;
+    item.save();
+  }
+
+  let userId = event.params.account.toHex()
+  let user = User.load(userId);
+  if (user !== null) {
+    let listedItems = user.onListItems;
+    let index = listedItems.indexOf(itemId);
+    let newListedItems = listedItems.splice(index, 1);
+    user.onListItems = newListedItems;
+    user.save();
+  }
+
+
+  // update marketplace's data
+  let marketAddress = event.address;
+  let marketplaceId = marketAddress.toHex();
+  let marketplace = Marketplace.load(marketplaceId);
+  if (marketplace !== null) {
+    // change onList items
+    let onListItems = marketplace.onListItems;
+    let index = onListItems.indexOf(itemId);
+    let newOnListItems = onListItems.splice(index, 1);
+    marketplace.onListItems = newOnListItems;
+    marketplace.save();
+  }
+}

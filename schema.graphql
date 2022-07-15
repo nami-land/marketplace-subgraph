@@ -9,6 +9,7 @@ type Item @entity {
   price: BigInt!
   onListTime: BigInt!
   isSoldOut: Boolean!
+  soldTime: BigInt!
   isOnList: Boolean!
   fee: BigInt!
   marketplace: Marketplace!
@@ -17,11 +18,8 @@ type Item @entity {
 type Marketplace @entity {
   id: ID!
   publishedItems: [Item!]!
+  onListItems: [Item!]!
   soldItems: [Item!]!
-  totalPublishedItemAmount: Int!
-  totalSoldItemAmount: Int!
-  todayPublishedItemAmount: Int!
-  todaySoldItemAmount: Int!
 }
 
 type User @entity {

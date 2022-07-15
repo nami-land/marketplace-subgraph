@@ -2,13 +2,13 @@ specVersion: 0.0.2
 schema:
   file: ./schema.graphql
 dataSources:
-  - kind: ethereum
+  - kind: ethereum/contract
     name: NecoMarketplace
     network: chapel
     source:
-      address: "0xa6Aa80264E121cf070fA3bb0c5c3c8aCF3b5d6ec"
+      address: "0x0E63c6d0E7AbC5A0F7d4469415cd3dAa79913bbf"
       abi: NecoMarketplace
-      startBlock: 15961680
+      startBlock: 21069347
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -16,8 +16,7 @@ dataSources:
       entities:
         - BuyItem
         - ChangePrice
-        - OwnershipTransferred
-        - PublichNewItem
+        - PublishNewItem
         - RevertOnListItem
       abis:
         - name: NecoMarketplace
@@ -29,8 +28,6 @@ dataSources:
           handler: handleBuyItem
         - event: ChangePrice(indexed address,uint256,uint256,uint256,uint256)
           handler: handleChangePrice
-        - event: OwnershipTransferred(indexed address,indexed address)
-          handler: handleOwnershipTransferred
         - event: PublishNewItem(indexed address,uint256,uint256,uint256,uint256)
           handler: handlePublishNewItem
         - event: RevertOnListItem(indexed address,uint256,uint256)

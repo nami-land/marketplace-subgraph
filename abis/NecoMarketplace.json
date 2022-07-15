@@ -356,13 +356,18 @@
 					},
 					{
 						"internalType": "bool",
-						"name": "isSold",
+						"name": "isOnList",
 						"type": "bool"
 					},
 					{
 						"internalType": "bool",
-						"name": "isOnList",
+						"name": "isSold",
 						"type": "bool"
+					},
+					{
+						"internalType": "uint256",
+						"name": "soldTime",
+						"type": "uint256"
 					}
 				],
 				"internalType": "struct NecoMarketplace.Item",
@@ -519,13 +524,18 @@
 			},
 			{
 				"internalType": "bool",
-				"name": "isSold",
+				"name": "isOnList",
 				"type": "bool"
 			},
 			{
 				"internalType": "bool",
-				"name": "isOnList",
+				"name": "isSold",
 				"type": "bool"
+			},
+			{
+				"internalType": "uint256",
+				"name": "soldTime",
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",
