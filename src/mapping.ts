@@ -2,8 +2,6 @@ import { Address, BigInt } from "@graphprotocol/graph-ts"
 import {
   NecoMarketplace,
   BuyItem,
-  ChangePrice,
-  OwnershipTransferred,
   PublishNewItem,
   RevertOnListItem
 } from "../generated/NecoMarketplace/NecoMarketplace"
@@ -73,18 +71,16 @@ export function handleBuyItem(event: BuyItem): void {
   buyer.save();
 }
 
-export function handleChangePrice(event: ChangePrice): void {}
-
 export function handlePublishNewItem(event: PublishNewItem): void {
   let marketAddress = event.address;
   let marketplaceId = marketAddress.toHex();
   let marketplace = Marketplace.load(marketplaceId);
 
   //  get market place smart contract
-  let marketplaceContract = NecoMarketplace.bind(marketAddress);
+  // let marketplaceContract = NecoMarketplace.bind(marketAddress);
 
   // get nft smart contract
-  let nftContract = NecoNFT.bind(marketplaceContract.necoNFT());
+  // let nftContract = NecoNFT.bind(marketplaceContract.necoNFT());
 
   if (marketplace === null) {
     marketplace = new Marketplace(marketplaceId);
@@ -114,7 +110,7 @@ export function handlePublishNewItem(event: PublishNewItem): void {
     item.seller = user.id;
     item.buyer = ZERO_ADDRESS.toHex();
     item.nftId = event.params.nftId;
-    item.nftUri = nftContract.uri(item.nftId);
+    item.nftUri = '';
     item.amount = event.params.amount;
     item.price = event.params.price;
     item.onListTime = event.block.timestamp;
