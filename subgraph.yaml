@@ -6,16 +6,15 @@ dataSources:
     name: NecoMarketplace
     network: chapel
     source:
-      address: "0x0E63c6d0E7AbC5A0F7d4469415cd3dAa79913bbf"
+      address: "0xa0bDe12092e345f05e97568358EAFf5b5810c48b"
       abi: NecoMarketplace
-      startBlock: 21069347
+      startBlock: 21478724
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
         - BuyItem
-        - ChangePrice
         - PublishNewItem
         - RevertOnListItem
       abis:
@@ -26,8 +25,6 @@ dataSources:
       eventHandlers:
         - event: BuyItem(indexed address,indexed address,uint256,uint256,uint256,uint256)
           handler: handleBuyItem
-        - event: ChangePrice(indexed address,uint256,uint256,uint256,uint256)
-          handler: handleChangePrice
         - event: PublishNewItem(indexed address,uint256,uint256,uint256,uint256)
           handler: handlePublishNewItem
         - event: RevertOnListItem(indexed address,uint256,uint256)

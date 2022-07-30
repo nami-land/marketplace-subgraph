@@ -128,6 +128,10 @@ export function handlePublishNewItem(event: PublishNewItem): void {
   let publishedItems = marketplace.publishedItems;
   publishedItems.push(item.id);
   marketplace.publishedItems = publishedItems;
+
+  let mOnListItems = marketplace.onListItems;
+  mOnListItems.push(item.id);
+  marketplace.onListItems = mOnListItems;
   marketplace.save();
 
   let onListItems = user.onListItems;
