@@ -11,6 +11,7 @@ type Item @entity {
   isSoldOut: Boolean!
   soldTime: BigInt!
   isOnList: Boolean!
+  isReverted: Boolean!
   fee: BigInt!
   marketplace: Marketplace!
 }
@@ -20,6 +21,7 @@ type Marketplace @entity {
   publishedItems: [Item!]!
   onListItems: [Item!]!
   soldItems: [Item!]!
+  revertedItems: [Item!]!
 }
 
 type User @entity {
@@ -27,4 +29,6 @@ type User @entity {
   address: Bytes!
   onListItems: [Item!]!
   boughtItems: [Item!]!
+  soldItems: [Item!]!
+  revertedItems: [Item!]!
 }

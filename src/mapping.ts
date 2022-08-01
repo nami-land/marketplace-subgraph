@@ -40,9 +40,12 @@ export function handleBuyItem(event: BuyItem): void {
 
     // change onList items
     let onListItems = marketplace.onListItems;
-    let index = onListItems.indexOf(itemId);
-    let newOnListItems = onListItems.splice(index, 1);
-    marketplace.onListItems = newOnListItems;
+    let index = marketplace.onListItems.indexOf(itemId);
+    if (index > -1) {
+      onListItems.splice(index, 1);
+    }
+    marketplace.onListItems = onListItems;
+
     marketplace.save();
   }
 
@@ -53,8 +56,15 @@ export function handleBuyItem(event: BuyItem): void {
     // change onList items
     let onListItems = seller.onListItems;
     let index = onListItems.indexOf(itemId);
-    let newOnListItems = onListItems.splice(index, 1);
-    seller.onListItems = newOnListItems;
+    if (index > -1) {
+      onListItems.splice(index, 1);
+    }
+    seller.onListItems = onListItems;
+
+    let soldItems = seller.soldItems;
+    soldItems.push(itemId);
+    seller.soldItems = soldItems;
+    seller.save();
   }
 
   // update buyer's data
@@ -67,7 +77,10 @@ export function handleBuyItem(event: BuyItem): void {
     buyer.boughtItems = [];
     buyer.save();
   }
-  buyer.boughtItems.push(itemId);
+
+  let boughtItems = buyer.boughtItems;
+  boughtItems.push(itemId);
+  buyer.boughtItems = boughtItems;
   buyer.save();
 }
 
@@ -87,6 +100,7 @@ export function handlePublishNewItem(event: PublishNewItem): void {
     marketplace.publishedItems = [];
     marketplace.soldItems = [];
     marketplace.onListItems = [];
+    marketplace.revertedItems = [];
     marketplace.save();
   }
 
@@ -98,6 +112,8 @@ export function handlePublishNewItem(event: PublishNewItem): void {
     user.address = event.params.account;
     user.onListItems = [];
     user.boughtItems = [];
+    user.revertedItems = [];
+    user.soldItems = [];
     user.save();
   }
 
@@ -117,6 +133,7 @@ export function handlePublishNewItem(event: PublishNewItem): void {
     item.isSoldOut = false;
     item.soldTime = event.block.timestamp;
     item.isOnList = true;
+    item.isReverted = false;
     item.fee = BIGINT_ZERO;
     item.save();
   }
@@ -141,6 +158,7 @@ export function handleRevertOnListItem(event: RevertOnListItem): void {
   let item = Item.load(itemId);
   if (item !== null) {
     item.isOnList = false;
+    item.isReverted = true;
     item.save();
   }
 
@@ -149,8 +167,14 @@ export function handleRevertOnListItem(event: RevertOnListItem): void {
   if (user !== null) {
     let listedItems = user.onListItems;
     let index = listedItems.indexOf(itemId);
-    let newListedItems = listedItems.splice(index, 1);
-    user.onListItems = newListedItems;
+    if (index > -1) {
+      listedItems.splice(index, 1);
+    }
+    user.onListItems = listedItems;
+
+    let revertedItems = user.revertedItems;
+    revertedItems.push(itemId)
+    user.revertedItems = revertedItems;
     user.save();
   }
 
@@ -163,8 +187,14 @@ export function handleRevertOnListItem(event: RevertOnListItem): void {
     // change onList items
     let onListItems = marketplace.onListItems;
     let index = onListItems.indexOf(itemId);
-    let newOnListItems = onListItems.splice(index, 1);
-    marketplace.onListItems = newOnListItems;
+    if (index > -1) {
+      onListItems.splice(index, 1);
+    }
+    marketplace.onListItems = onListItems;
+
+    let revertedItems = marketplace.revertedItems;
+    revertedItems.push(itemId);
+    marketplace.revertedItems = revertedItems;
     marketplace.save();
   }
 }
