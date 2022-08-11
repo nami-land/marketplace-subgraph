@@ -1,4 +1,4 @@
-import { Address, BigInt } from "@graphprotocol/graph-ts"
+import { Address, BigInt, log } from "@graphprotocol/graph-ts"
 import {
   NecoMarketplace,
   BuyItem,
@@ -90,17 +90,26 @@ export function handlePublishNewItem(event: PublishNewItem): void {
   let marketplace = Marketplace.load(marketplaceId);
 
   //  get market place smart contract
-  // let marketplaceContract = NecoMarketplace.bind(marketAddress);
+  // let marketplaceContract = NecoMarketplace.bind(event.address);
+  // log.warning(marketAddress.toHex(), []);
+  // let necoNFTAddress = ZERO_ADDRESS;
+  // const necoNFTResult = marketplaceContract.try_necoNFT();
+  // if (necoNFTResult.reverted) {
+  //   log.warning("get neco nft contract address failed.", []);
+  // } else {
+  //   log.warning(necoNFTResult.value.toHex(), []);
+  //   necoNFTAddress = necoNFTResult.value;
+  // }
 
   // get nft smart contract
-  // let nftContract = NecoNFT.bind(marketplaceContract.necoNFT());
+  // let nftContract = NecoNFT.bind(Address.fromString('0xEB1C424A31490A9B141126838a3c625647f22BDc'));
 
   if (marketplace === null) {
     marketplace = new Marketplace(marketplaceId);
     marketplace.publishedItems = [];
     marketplace.soldItems = [];
     marketplace.onListItems = [];
-    marketplace.revertedItems = [];
+    marketplace.revokedItems = [];
     marketplace.save();
   }
 
@@ -112,7 +121,7 @@ export function handlePublishNewItem(event: PublishNewItem): void {
     user.address = event.params.account;
     user.onListItems = [];
     user.boughtItems = [];
-    user.revertedItems = [];
+    user.revokedItems = [];
     user.soldItems = [];
     user.save();
   }
@@ -126,14 +135,28 @@ export function handlePublishNewItem(event: PublishNewItem): void {
     item.seller = user.id;
     item.buyer = ZERO_ADDRESS.toHex();
     item.nftId = event.params.nftId;
-    item.nftUri = '';
+    // const urlResult = nftContract.try_uri(event.params.nftId);
+    // if (urlResult.reverted) {
+    //   log.warning("get nft uri failed: ", []);
+    // } else {
+    //   item.nftUri = urlResult.value;
+    //   log.warning("nft uri: {}", [urlResult.value.toString()]);
+    // }
+
+    // const nftTypeResult = nftContract.try_getNFTType(event.params.nftId);
+    // if (nftTypeResult.reverted) {
+    //   log.info("get nft type failed: " + marketplaceContract.necoNFT().toHex(), []);
+    // } else {
+    //   item.nftType = nftTypeResult.value;
+    // }
+
     item.amount = event.params.amount;
     item.price = event.params.price;
     item.onListTime = event.block.timestamp;
     item.isSoldOut = false;
     item.soldTime = event.block.timestamp;
     item.isOnList = true;
-    item.isReverted = false;
+    item.isRevoked = false;
     item.fee = BIGINT_ZERO;
     item.save();
   }
@@ -158,7 +181,7 @@ export function handleRevertOnListItem(event: RevertOnListItem): void {
   let item = Item.load(itemId);
   if (item !== null) {
     item.isOnList = false;
-    item.isReverted = true;
+    item.isRevoked = true;
     item.save();
   }
 
@@ -172,9 +195,9 @@ export function handleRevertOnListItem(event: RevertOnListItem): void {
     }
     user.onListItems = listedItems;
 
-    let revertedItems = user.revertedItems;
+    let revertedItems = user.revokedItems;
     revertedItems.push(itemId)
-    user.revertedItems = revertedItems;
+    user.revokedItems = revertedItems;
     user.save();
   }
 
@@ -192,9 +215,9 @@ export function handleRevertOnListItem(event: RevertOnListItem): void {
     }
     marketplace.onListItems = onListItems;
 
-    let revertedItems = marketplace.revertedItems;
+    let revertedItems = marketplace.revokedItems;
     revertedItems.push(itemId);
-    marketplace.revertedItems = revertedItems;
+    marketplace.revokedItems = revertedItems;
     marketplace.save();
   }
 }

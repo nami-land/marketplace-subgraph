@@ -17,6 +17,7 @@ dataSources:
         - BuyItem
         - PublishNewItem
         - RevertOnListItem
+        - NecoNFT
       abis:
         - name: NecoMarketplace
           file: ./abis/NecoMarketplace.json
